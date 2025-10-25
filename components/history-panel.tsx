@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, History, Trash2, Sparkles, RefreshCw } from "lucide-react"
@@ -26,14 +26,10 @@ export function HistoryPanel({ userId, onSelectHistory }: HistoryPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [history, setHistory] = useState<HistoryItem[]>([])
 
-  useEffect(() => {
-    if (userId) {
-      loadHistory()
-    }
-  }, [userId])
-
-  const loadHistory = () => {
+  const loadHistory = useCallback(() => {
     // Load from localStorage for now (can be replaced with Supabase later)
+    if (!userId) return;
+    
     const stored = localStorage.getItem(`history_${userId}`)
     if (stored) {
       const parsed = JSON.parse(stored)
@@ -42,7 +38,11 @@ export function HistoryPanel({ userId, onSelectHistory }: HistoryPanelProps) {
         timestamp: new Date(item.timestamp)
       })))
     }
-  }
+  }, [userId])
+
+  useEffect(() => {
+    loadHistory()
+  }, [loadHistory])
 
   const saveToHistory = (item: Omit<HistoryItem, "id" | "timestamp">) => {
     if (!userId) return
