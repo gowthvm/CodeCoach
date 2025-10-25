@@ -2,10 +2,27 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Code2, Sparkles, RefreshCw, Copy, Zap } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-950 dark:to-green-950">
+      {/* Header */}
+      <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Code2 className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold">CodeCoach</h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <Link href="/auth/signin">
+              <Button variant="default">Sign In</Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center space-y-6 max-w-3xl mx-auto">
@@ -16,10 +33,10 @@ export default function Home() {
             CodeCoach
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground">
-            AI-Powered Code Analysis & Conversion
+            Your AI Pair Programmer for Learning Code
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Transform confusing code into clear, understandable lessons. Get intelligent explanations, quality insights, and seamless language translation to accelerate your learning journey.
+            Transform unfamiliar code into clear, understandable insights. Get intelligent explanations tailored to your skill level, comprehensive quality feedback, and seamless language translation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link href="/dashboard">
@@ -46,67 +63,67 @@ export default function Home() {
       {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Powerful Features
+          Everything You Need to Decode Any Code
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <Sparkles className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Personalized Learning</CardTitle>
+              <CardTitle>Adaptive Learning Experience</CardTitle>
               <CardDescription>
-                Choose your skill level and receive explanations that match your understanding. From beginner-friendly basics to advanced architectural insights, learn at your own pace
+                Choose from beginner, intermediate, or advanced complexity levels. Receive explanations tailored to your expertise—from fundamental concepts to architectural patterns
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <RefreshCw className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Instant Translation</CardTitle>
+              <CardTitle>Cross-Language Translation</CardTitle>
               <CardDescription>
-                Switch between programming languages effortlessly. Perfect for learning a new language by seeing how familiar concepts translate, or migrating legacy code to modern stacks
+                Convert code between 10+ programming languages instantly. Perfect for learning new languages or migrating projects—see exactly how concepts translate across different syntaxes
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <Copy className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Ready to Use</CardTitle>
+              <CardTitle>Copy, Paste, Done</CardTitle>
               <CardDescription>
-                Copy your enhanced code instantly with perfect formatting. No manual cleanup needed - paste directly into your project and keep coding
+                One click copies everything - comments, formatting, the works. Ready to drop straight into your editor. No cleanup, no fuss
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <Zap className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Intelligent Feedback</CardTitle>
+              <CardTitle>Comprehensive Code Analysis</CardTitle>
               <CardDescription>
-                Receive detailed quality scores, spot potential issues before they become bugs, and get practical suggestions to write better, more maintainable code
+                Receive detailed quality scores and line-by-line feedback. Identify potential issues early and get actionable suggestions for improvement—like having an expert code reviewer
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <Code2 className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Multi-Language Support</CardTitle>
+              <CardTitle>10+ Languages, One Tool</CardTitle>
               <CardDescription>
-                Work with JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, Ruby, and more. One tool for all your coding languages
+                JavaScript, Python, Java, C++, Go, Rust, TypeScript, C#, PHP, Ruby. Whatever you're working with, we've got you covered
               </CardDescription>
             </CardHeader>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow backdrop-blur-sm bg-card/95">
             <CardHeader>
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                 <span className="text-2xl">🎨</span>
               </div>
-              <CardTitle>Beautiful Experience</CardTitle>
+              <CardTitle>Polished Developer Experience</CardTitle>
               <CardDescription>
-                Enjoy a clean, intuitive interface with syntax highlighting, dark mode, and smooth animations. Focus on learning without distractions
+                Enjoy a clean, intuitive interface with professional syntax highlighting and dark mode support. Designed with attention to detail for developers who value quality tools
               </CardDescription>
             </CardHeader>
           </Card>
@@ -124,9 +141,9 @@ export default function Home() {
               1
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Start Immediately</h3>
+              <h3 className="text-xl font-semibold mb-2">Get Started Instantly</h3>
               <p className="text-muted-foreground">
-                No credit card required. Try it instantly or create an account to save your work and build your learning history
+                No registration required to try the app. Explore all features immediately, then create an account to save your work and access history
               </p>
             </div>
           </div>
@@ -135,9 +152,9 @@ export default function Home() {
               2
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Paste Your Code</h3>
+              <h3 className="text-xl font-semibold mb-2">Input Your Code</h3>
               <p className="text-muted-foreground">
-                Drop in any code snippet you're struggling to understand - from a single function to entire files
+                Paste any code snippet or complete file you need help understanding. Works with everything from single functions to complex modules
               </p>
             </div>
           </div>
@@ -146,9 +163,9 @@ export default function Home() {
               3
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Choose Your Path</h3>
+              <h3 className="text-xl font-semibold mb-2">Configure Your Preferences</h3>
               <p className="text-muted-foreground">
-                Want explanations? Pick your skill level. Need translation? Select your target language. Simple choices, powerful results
+                Select your desired complexity level for analysis, or choose source and target languages for conversion. Simple, straightforward options
               </p>
             </div>
           </div>
@@ -157,9 +174,9 @@ export default function Home() {
               4
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Learn and Improve</h3>
+              <h3 className="text-xl font-semibold mb-2">Review and Learn</h3>
               <p className="text-muted-foreground">
-                Get clear explanations, quality insights, and improvement tips. Save your work to track progress and revisit lessons anytime
+                Examine the annotated code with inline comments, review quality metrics and feedback, and save your work for future reference
               </p>
             </div>
           </div>
@@ -171,10 +188,10 @@ export default function Home() {
         <Card className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 border-0">
           <CardContent className="text-center py-16 px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Stop Struggling, Start Learning
+              Accelerate Your Development Journey
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join developers who are mastering new languages, understanding complex code, and building better software with confidence
+              Join thousands of developers who are mastering new languages, understanding complex codebases, and building better software with confidence
             </p>
             <Link href="/auth/signup">
               <Button size="lg" variant="secondary" className="text-lg px-8">
@@ -188,7 +205,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>&copy; 2024 CodeCoach. Powered by DeepSeek AI.</p>
+          <p>&copy; 2025 CodeCoach.</p>
         </div>
       </footer>
     </div>

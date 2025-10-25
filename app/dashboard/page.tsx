@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [targetLanguage, setTargetLanguage] = useState("python")
   const [processing, setProcessing] = useState(false)
   const [mode, setMode] = useState<"analyze" | "convert">("analyze")
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -212,6 +213,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-950 dark:to-green-950">
+      {/* History Panel */}
+      <HistoryPanel userId={user?.id || null} onSelectHistory={handleSelectHistory} onOpenChange={setIsPanelOpen} />
+      
+      {/* Main Content Wrapper */}
+      <div className={`transition-all duration-300 ease-in-out ${isPanelOpen ? 'ml-80' : 'ml-0'}`}>
       {/* Header */}
       <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -244,9 +250,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
-
-      {/* History Panel */}
-      <HistoryPanel userId={user?.id || null} onSelectHistory={handleSelectHistory} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -285,7 +288,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Controls */}
-        <Card className="mb-6">
+        <Card className="mb-6 backdrop-blur-sm bg-card/95">
           <CardHeader>
             <CardTitle>Settings</CardTitle>
             <CardDescription>
@@ -390,7 +393,7 @@ export default function DashboardPage() {
 
         {/* Code Editors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+          <Card className="backdrop-blur-sm bg-card/95">
             <CardHeader>
               <CardTitle>Input Code</CardTitle>
               <CardDescription>Paste your code here</CardDescription>
@@ -404,7 +407,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="backdrop-blur-sm bg-card/95">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>
@@ -439,6 +442,7 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+      </div>
     </div>
   )
 }

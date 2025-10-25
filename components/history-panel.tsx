@@ -20,10 +20,17 @@ interface HistoryItem {
 interface HistoryPanelProps {
   userId: string | null
   onSelectHistory: (item: HistoryItem) => void
+  onOpenChange?: (isOpen: boolean) => void
 }
 
-export function HistoryPanel({ userId, onSelectHistory }: HistoryPanelProps) {
+export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
+  
+  const handleToggle = () => {
+    const newState = !isOpen
+    setIsOpen(newState)
+    onOpenChange?.(newState)
+  }
   const [history, setHistory] = useState<HistoryItem[]>([])
 
   const loadHistory = useCallback(() => {
@@ -79,26 +86,29 @@ export function HistoryPanel({ userId, onSelectHistory }: HistoryPanelProps) {
     <>
       {/* Toggle Button */}
       <Button
-        variant="outline"
+        variant={isOpen ? "default" : "outline"}
         size="icon"
         className={cn(
-          "fixed top-20 z-20 transition-all duration-300",
-          isOpen ? "right-80" : "right-4"
+          "fixed top-[88px] z-20 shadow-md transition-all duration-300",
+          isOpen ? "left-[336px]" : "left-4"
         )}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
       >
-        {isOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        <History className="h-5 w-5" />
       </Button>
 
       {/* Side Panel */}
       <div
         className={cn(
-          "fixed top-0 right-0 h-full w-80 bg-background border-l shadow-lg z-10 transition-transform duration-300 ease-in-out overflow-hidden",
-          isOpen ? "translate-x-0" : "translate-x-full"
+          "fixed top-0 left-0 h-full w-80 border-r z-10 transition-transform duration-300 ease-in-out overflow-hidden",
+          isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="h-full flex flex-col">
-          <div className="p-4 border-b">
+        <div className="h-full flex flex-col bg-background/95 backdrop-blur-md">
+          {/* Header spacer to align with top bar - exact height match */}
+          <div className="h-[73px] border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-md flex-shrink-0"></div>
+          
+          <div className="p-4 border-b backdrop-blur-sm">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <History className="h-5 w-5 text-primary" />
@@ -196,7 +206,7 @@ export function HistoryPanel({ userId, onSelectHistory }: HistoryPanelProps) {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/20 z-[5] transition-opacity duration-300"
-          onClick={() => setIsOpen(false)}
+          onClick={handleToggle}
         />
       )}
     </>

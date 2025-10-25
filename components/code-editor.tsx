@@ -22,27 +22,29 @@ export function CodeEditor({
   const { theme } = useTheme()
 
   return (
-    <Editor
-      height={height}
-      language={language}
-      value={value}
-      onChange={onChange}
-      theme={theme === "dark" ? "vs-dark" : "light"}
-      options={{
-        readOnly,
-        minimap: { enabled: value.split("\n").length > 50 },
-        fontSize: 14,
-        lineHeight: 1.6,
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
-        tabSize: 2,
-        wordWrap: "on",
-        quickSuggestions: false,
-        suggestOnTriggerCharacters: false,
-        acceptSuggestionOnCommitCharacter: false,
-        acceptSuggestionOnEnter: "off",
-        parameterHints: { enabled: false },
-      }}
-    />
+    <div className="rounded-md overflow-hidden border">
+      <Editor
+        height={height}
+        language={language}
+        value={value}
+        onChange={onChange}
+        theme={theme === "dark" ? "vs-dark" : "light"}
+        options={{
+          readOnly,
+          minimap: { enabled: value.split("\n").length > 50 },
+          fontSize: 14,
+          lineHeight: 1.6,
+          scrollBeyondLastLine: false,
+          automaticLayout: true,
+          tabSize: 2,
+          wordWrap: "on",
+          quickSuggestions: false,
+          suggestOnTriggerCharacters: false,
+          acceptSuggestionOnCommitCharacter: false,
+          acceptSuggestionOnEnter: "off",
+          parameterHints: { enabled: false },
+        }}
+      />
+    </div>
   )
 }
