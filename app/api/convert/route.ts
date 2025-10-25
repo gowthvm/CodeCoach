@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
 
 // Helper function to validate code syntax and structure
 interface ValidationResult {
@@ -109,8 +109,8 @@ IMPORTANT RULES:
     fixedCode = fixedCode.replace(/^```[\w]*\n?/g, '').replace(/\n```$/g, '').trim();
     
     return fixedCode;
-  } catch (error) {
-    console.error('Error fixing code:', error);
+  } catch (error: unknown) {
+    console.error("Error fixing code:", error);
     return code; // Return original code if fixing fails
   }
 };
@@ -344,7 +344,7 @@ function verifyJSCode(code: string, targetLanguage: string): string {
     code = code.replace(
       /function\s+(\w+)\s*\(([^)]*)\)/g,
       (match, funcName, params) => {
-        const typedParams = params.split(',').map(p => {
+        const typedParams = params.split(',').map((p: string) => {
           const [name, type] = p.trim().split(':');
           if (!type && name) {
             return `${name}: any`; // Default to 'any' if type not specified
@@ -371,7 +371,7 @@ function verifyCppCode(code: string): string {
   return code;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     const { code, sourceLanguage, targetLanguage } = await request.json();
 
@@ -478,10 +478,10 @@ Only output the final ${targetLanguage} code with no additional text or explanat
     }
 
     return NextResponse.json({ convertedCode });
-  } catch (error) {
-    console.error('Error converting code:', error);
+  } catch (error: unknown) {
+    console.error("Error converting code:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
