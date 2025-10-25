@@ -19,7 +19,7 @@ export default function Home() {
             AI-Powered Code Analysis & Conversion
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Accelerate your learning with intelligent inline comments and seamless code conversion between programming languages
+            Master unfamiliar code with AI-powered inline comments, detailed feedback, and instant language conversion. Perfect for learning new languages or understanding complex codebases.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link href="/dashboard">
@@ -52,9 +52,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Sparkles className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Intelligent Analysis</CardTitle>
+              <CardTitle>Smart Code Analysis</CardTitle>
               <CardDescription>
-                Get contextual inline comments that explain your code at beginner, intermediate, or advanced levels
+                Get inline comments tailored to your skill level plus detailed feedback including code quality scores, line-by-line analysis, and actionable improvement suggestions
               </CardDescription>
             </CardHeader>
           </Card>
@@ -62,9 +62,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <RefreshCw className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Code Conversion</CardTitle>
+              <CardTitle>Language Conversion</CardTitle>
               <CardDescription>
-                Convert code between multiple programming languages while maintaining logic and best practices
+                Translate code between 10+ languages with intelligent validation, automatic error fixing, and idiomatic patterns for each target language
               </CardDescription>
             </CardHeader>
           </Card>
@@ -72,9 +72,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Copy className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Easy Export</CardTitle>
+              <CardTitle>Instant Export</CardTitle>
               <CardDescription>
-                Copy analyzed or converted code to clipboard with a single click, ready to use in your projects
+                One-click copy to clipboard for analyzed or converted code. All formatting, comments, and indentation preserved and ready to paste into your IDE
               </CardDescription>
             </CardHeader>
           </Card>
@@ -82,9 +82,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Zap className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Powered by AI</CardTitle>
+              <CardTitle>DeepSeek AI Engine</CardTitle>
               <CardDescription>
-                Leverages DeepSeek AI models for accurate code understanding and intelligent transformations
+                Powered by DeepSeek's advanced language models via OpenRouter for accurate code analysis, intelligent commenting, and reliable cross-language conversion
               </CardDescription>
             </CardHeader>
           </Card>
@@ -92,9 +92,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Code2 className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Multi-Language Support</CardTitle>
+              <CardTitle>10+ Languages Supported</CardTitle>
               <CardDescription>
-                Supports JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, Ruby, and more
+                Full support for JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, and Ruby with proper syntax highlighting and language-specific validation
               </CardDescription>
             </CardHeader>
           </Card>
@@ -104,9 +104,9 @@ export default function Home() {
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                 <span className="text-2xl">🎨</span>
               </div>
-              <CardTitle>Beautiful Interface</CardTitle>
+              <CardTitle>Professional Code Editor</CardTitle>
               <CardDescription>
-                Modern, responsive design with dark mode support and smooth animations for the best user experience
+                Monaco Editor integration (VS Code's engine) with syntax highlighting, dark/light themes, line numbers, and code folding for a premium editing experience
               </CardDescription>
             </CardHeader>
           </Card>
@@ -124,9 +124,9 @@ export default function Home() {
               1
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Sign Up</h3>
+              <h3 className="text-xl font-semibold mb-2">Sign Up or Try Free</h3>
               <p className="text-muted-foreground">
-                Create your free account to access all CodeCoach features
+                Create an account to save your history, or jump straight to the dashboard to try it without signing in
               </p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-2">Paste Your Code</h3>
               <p className="text-muted-foreground">
-                Input the code you want to analyze or convert in the editor
+                Use the professional Monaco Editor to input your code with full syntax highlighting and auto-formatting support
               </p>
             </div>
           </div>
@@ -146,9 +146,9 @@ export default function Home() {
               3
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Choose Your Options</h3>
+              <h3 className="text-xl font-semibold mb-2">Configure Settings</h3>
               <p className="text-muted-foreground">
-                Select complexity level for analysis or target language for conversion
+                For analysis: choose beginner, intermediate, or advanced complexity. For conversion: select source and target languages from 10+ options
               </p>
             </div>
           </div>
@@ -157,9 +157,9 @@ export default function Home() {
               4
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Get Results</h3>
+              <h3 className="text-xl font-semibold mb-2">Get Instant Results</h3>
               <p className="text-muted-foreground">
-                Receive your analyzed or converted code with helpful comments instantly
+                View commented code with quality scores and feedback, or converted code with proper imports and error handling. Copy with one click or review your history anytime
               </p>
             </div>
           </div>
@@ -171,10 +171,10 @@ export default function Home() {
         <Card className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 border-0">
           <CardContent className="text-center py-16 px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Level Up Your Coding?
+              Ready to Master Any Codebase?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join CodeCoach today and start understanding code faster than ever before
+              Join thousands of developers using CodeCoach to understand unfamiliar code, learn new languages, and accelerate their development workflow
             </p>
             <Link href="/auth/signup">
               <Button size="lg" variant="secondary" className="text-lg px-8">
