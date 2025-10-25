@@ -19,7 +19,7 @@ export default function Home() {
             AI-Powered Code Analysis & Conversion
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Master unfamiliar code with AI-powered inline comments, detailed feedback, and instant language conversion. Perfect for learning new languages or understanding complex codebases.
+            Transform confusing code into clear, understandable lessons. Get intelligent explanations, quality insights, and seamless language translation to accelerate your learning journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link href="/dashboard">
@@ -52,9 +52,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Sparkles className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Smart Code Analysis</CardTitle>
+              <CardTitle>Personalized Learning</CardTitle>
               <CardDescription>
-                Get inline comments tailored to your skill level plus detailed feedback including code quality scores, line-by-line analysis, and actionable improvement suggestions
+                Choose your skill level and receive explanations that match your understanding. From beginner-friendly basics to advanced architectural insights, learn at your own pace
               </CardDescription>
             </CardHeader>
           </Card>
@@ -62,9 +62,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <RefreshCw className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Language Conversion</CardTitle>
+              <CardTitle>Instant Translation</CardTitle>
               <CardDescription>
-                Translate code between 10+ languages with intelligent validation, automatic error fixing, and idiomatic patterns for each target language
+                Switch between programming languages effortlessly. Perfect for learning a new language by seeing how familiar concepts translate, or migrating legacy code to modern stacks
               </CardDescription>
             </CardHeader>
           </Card>
@@ -72,9 +72,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Copy className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Instant Export</CardTitle>
+              <CardTitle>Ready to Use</CardTitle>
               <CardDescription>
-                One-click copy to clipboard for analyzed or converted code. All formatting, comments, and indentation preserved and ready to paste into your IDE
+                Copy your enhanced code instantly with perfect formatting. No manual cleanup needed - paste directly into your project and keep coding
               </CardDescription>
             </CardHeader>
           </Card>
@@ -82,9 +82,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Zap className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>DeepSeek AI Engine</CardTitle>
+              <CardTitle>Intelligent Feedback</CardTitle>
               <CardDescription>
-                Powered by DeepSeek's advanced language models via OpenRouter for accurate code analysis, intelligent commenting, and reliable cross-language conversion
+                Receive detailed quality scores, spot potential issues before they become bugs, and get practical suggestions to write better, more maintainable code
               </CardDescription>
             </CardHeader>
           </Card>
@@ -92,9 +92,9 @@ export default function Home() {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Code2 className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>10+ Languages Supported</CardTitle>
+              <CardTitle>Multi-Language Support</CardTitle>
               <CardDescription>
-                Full support for JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, and Ruby with proper syntax highlighting and language-specific validation
+                Work with JavaScript, TypeScript, Python, Java, C++, C#, Go, Rust, PHP, Ruby, and more. One tool for all your coding languages
               </CardDescription>
             </CardHeader>
           </Card>
@@ -104,9 +104,9 @@ export default function Home() {
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
                 <span className="text-2xl">🎨</span>
               </div>
-              <CardTitle>Professional Code Editor</CardTitle>
+              <CardTitle>Beautiful Experience</CardTitle>
               <CardDescription>
-                Monaco Editor integration (VS Code's engine) with syntax highlighting, dark/light themes, line numbers, and code folding for a premium editing experience
+                Enjoy a clean, intuitive interface with syntax highlighting, dark mode, and smooth animations. Focus on learning without distractions
               </CardDescription>
             </CardHeader>
           </Card>
@@ -124,9 +124,9 @@ export default function Home() {
               1
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Sign Up or Try Free</h3>
+              <h3 className="text-xl font-semibold mb-2">Start Immediately</h3>
               <p className="text-muted-foreground">
-                Create an account to save your history, or jump straight to the dashboard to try it without signing in
+                No credit card required. Try it instantly or create an account to save your work and build your learning history
               </p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-2">Paste Your Code</h3>
               <p className="text-muted-foreground">
-                Use the professional Monaco Editor to input your code with full syntax highlighting and auto-formatting support
+                Drop in any code snippet you're struggling to understand - from a single function to entire files
               </p>
             </div>
           </div>
@@ -146,9 +146,9 @@ export default function Home() {
               3
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Configure Settings</h3>
+              <h3 className="text-xl font-semibold mb-2">Choose Your Path</h3>
               <p className="text-muted-foreground">
-                For analysis: choose beginner, intermediate, or advanced complexity. For conversion: select source and target languages from 10+ options
+                Want explanations? Pick your skill level. Need translation? Select your target language. Simple choices, powerful results
               </p>
             </div>
           </div>
@@ -157,9 +157,9 @@ export default function Home() {
               4
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Get Instant Results</h3>
+              <h3 className="text-xl font-semibold mb-2">Learn and Improve</h3>
               <p className="text-muted-foreground">
-                View commented code with quality scores and feedback, or converted code with proper imports and error handling. Copy with one click or review your history anytime
+                Get clear explanations, quality insights, and improvement tips. Save your work to track progress and revisit lessons anytime
               </p>
             </div>
           </div>
@@ -171,10 +171,10 @@ export default function Home() {
         <Card className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 border-0">
           <CardContent className="text-center py-16 px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Master Any Codebase?
+              Stop Struggling, Start Learning
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of developers using CodeCoach to understand unfamiliar code, learn new languages, and accelerate their development workflow
+              Join developers who are mastering new languages, understanding complex code, and building better software with confidence
             </p>
             <Link href="/auth/signup">
               <Button size="lg" variant="secondary" className="text-lg px-8">
