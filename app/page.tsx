@@ -3,10 +3,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Code2, Sparkles, RefreshCw, Copy, Zap } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import Plasma from "@/components/Plasma"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-950 dark:to-green-950">
+    <div className="min-h-screen relative">
+      {/* Animated Plasma Background */}
+      <div className="fixed inset-0 z-0">
+        <Plasma
+          color="#10b981"
+          speed={0.6}
+          direction="forward"
+          scale={1.1}
+          opacity={0.8}
+          mouseInteractive={true}
+        />
+      </div>
+      
+      {/* Content overlay with gradient */}
+      <div className="relative z-10 min-h-screen bg-gradient-to-br from-green-50/60 to-emerald-100/60 dark:from-gray-950/80 dark:to-green-950/80">
       {/* Header */}
       <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -208,6 +223,7 @@ export default function Home() {
           <p>&copy; 2025 CodeCoach.</p>
         </div>
       </footer>
+      </div>
     </div>
   )
 }
