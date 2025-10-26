@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
+import { Progress } from "@/components/ui/progress"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CodeEditor } from "@/components/code-editor"
 import { Code2, LogOut, Copy, Loader2, Sparkles, RefreshCw, LogIn, Home } from "lucide-react"
@@ -44,8 +45,10 @@ export default function DashboardPage() {
   const [sourceLanguage, setSourceLanguage] = useState("javascript")
   const [targetLanguage, setTargetLanguage] = useState("python")
   const [processing, setProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState<"analyze" | "convert">("analyze")
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const feedbackRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -75,6 +78,16 @@ export default function DashboardPage() {
     }
 
     setProcessing(true)
+    setProgress(0)
+    
+    // Simulate smooth progress
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) return prev
+        return prev + Math.random() * 15
+      })
+    }, 300)
+
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -85,6 +98,11 @@ export default function DashboardPage() {
       if (!response.ok) throw new Error("Failed to analyze code")
 
       const data = await response.json()
+      setProgress(100)
+      
+      // Small delay to show 100% completion
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
       setOutputCode(data.analyzedCode)
       setFeedback(data.feedback || "")
       
@@ -103,6 +121,17 @@ export default function DashboardPage() {
         title: "Success!",
         description: "Code analyzed successfully",
       })
+      
+      // Auto-scroll to feedback section
+      setTimeout(() => {
+        if (feedbackRef.current) {
+          feedbackRef.current.scrollIntoView({ 
+            behavior: "smooth", 
+            block: "start",
+            inline: "nearest"
+          })
+        }
+      }, 400)
     } catch (error) {
       toast({
         title: "Error",
@@ -110,7 +139,9 @@ export default function DashboardPage() {
         variant: "destructive",
       })
     } finally {
+      clearInterval(progressInterval)
       setProcessing(false)
+      setTimeout(() => setProgress(0), 500)
     }
   }
 
@@ -125,6 +156,16 @@ export default function DashboardPage() {
     }
 
     setProcessing(true)
+    setProgress(0)
+    
+    // Simulate smooth progress
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) return prev
+        return prev + Math.random() * 15
+      })
+    }, 300)
+
     try {
       const response = await fetch("/api/convert", {
         method: "POST",
@@ -139,6 +180,11 @@ export default function DashboardPage() {
       if (!response.ok) throw new Error("Failed to convert code")
 
       const data = await response.json()
+      setProgress(100)
+      
+      // Small delay to show 100% completion
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
       setOutputCode(data.convertedCode)
       
       // Save to history if user is signed in
@@ -163,7 +209,9 @@ export default function DashboardPage() {
         variant: "destructive",
       })
     } finally {
+      clearInterval(progressInterval)
       setProcessing(false)
+      setTimeout(() => setProgress(0), 500)
     }
   }
 
@@ -378,16 +426,7 @@ export default function DashboardPage() {
                   disabled={processing}
                   className="flex-1"
                 >
-                  {processing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : mode === "analyze" ? (
-                    "Analyze"
-                  ) : (
-                    "Convert"
-                  )}
+                  {mode === "analyze" ? "Analyze" : "Convert"}
                 </Button>
                 <Button variant="outline" onClick={handleClear}>
                   Clear
@@ -396,6 +435,23 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Progress Bar */}
+        {processing && (
+          <Card className="mb-6 backdrop-blur-sm bg-card/95">
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {mode === "analyze" ? "Analyzing code..." : "Converting code..."}
+                  </span>
+                  <span className="font-medium">{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Code Editors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -443,7 +499,7 @@ export default function DashboardPage() {
 
         {/* Feedback Section - Only show for analyze mode */}
         {mode === "analyze" && feedback && (
-          <div className="mt-6">
+          <div ref={feedbackRef} className="mt-6">
             <FeedbackDisplay feedback={feedback} />
           </div>
         )}
