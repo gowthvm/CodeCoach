@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 
 interface PlasmaProps {
@@ -99,6 +99,19 @@ export const Plasma: React.FC<PlasmaProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mousePos = useRef({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Detect mobile devices
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -108,11 +121,14 @@ export const Plasma: React.FC<PlasmaProps> = ({
 
     const directionMultiplier = direction === 'reverse' ? -1.0 : 1.0;
 
+    // Reduce DPR on mobile for better performance
+    const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+
     const renderer = new Renderer({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
+      dpr: dpr
     });
     const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;
@@ -143,7 +159,7 @@ export const Plasma: React.FC<PlasmaProps> = ({
     const mesh = new Mesh(gl, { geometry, program });
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!mouseInteractive) return;
+      if (!mouseInteractive || isMobile) return; // Disable on mobile
       const rect = containerRef.current!.getBoundingClientRect();
       mousePos.current.x = e.clientX - rect.left;
       mousePos.current.y = e.clientY - rect.top;
@@ -152,7 +168,7 @@ export const Plasma: React.FC<PlasmaProps> = ({
       mouseUniform[1] = mousePos.current.y;
     };
 
-    if (mouseInteractive) {
+    if (mouseInteractive && !isMobile) {
       containerRef.current.addEventListener('mousemove', handleMouseMove);
     }
 
@@ -172,7 +188,18 @@ export const Plasma: React.FC<PlasmaProps> = ({
 
     let raf = 0;
     const t0 = performance.now();
+    let lastFrameTime = 0;
+    // Reduce frame rate on mobile (30fps instead of 60fps)
+    const frameInterval = isMobile ? 1000 / 30 : 1000 / 60;
+    
     const loop = (t: number) => {
+      // Throttle frame rate on mobile
+      if (isMobile && t - lastFrameTime < frameInterval) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      lastFrameTime = t;
+
       let timeValue = (t - t0) * 0.001;
 
       if (direction === 'pingpong') {
@@ -189,14 +216,14 @@ export const Plasma: React.FC<PlasmaProps> = ({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      if (mouseInteractive && containerRef.current) {
+      if (mouseInteractive && !isMobile && containerRef.current) {
         containerRef.current.removeEventListener('mousemove', handleMouseMove);
       }
       try {
         containerRef.current?.removeChild(canvas);
       } catch {}
     };
-  }, [color, speed, direction, scale, opacity, mouseInteractive]);
+  }, [color, speed, direction, scale, opacity, mouseInteractive, isMobile]);
 
   return <div ref={containerRef} className="w-full h-full relative overflow-hidden" />;
 };

@@ -12,16 +12,16 @@ export default function Home() {
       <div className="fixed inset-0 z-0">
         <Plasma
           color="#10b981"
-          speed={0.6}
+          speed={0.5}
           direction="forward"
-          scale={1.1}
-          opacity={0.8}
+          scale={1.2}
+          opacity={1.2}
           mouseInteractive={true}
         />
       </div>
       
       {/* Content overlay with gradient */}
-      <div className="relative z-10 min-h-screen bg-gradient-to-br from-green-50/60 to-emerald-100/60 dark:from-gray-950/80 dark:to-green-950/80">
+      <div className="relative z-10 min-h-screen bg-gradient-to-br from-green-50/40 to-emerald-100/40 dark:from-gray-950/60 dark:to-green-950/60">
       {/* Header */}
       <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
