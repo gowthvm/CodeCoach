@@ -364,6 +364,11 @@ export default function DashboardPage() {
             ) : (
               <>
                 <ThemeToggle />
+                <Link href="/auth/signup">
+                  <Button variant="outline" size="sm">
+                    Sign Up
+                  </Button>
+                </Link>
                 <Link href="/auth/signin">
                   <Button variant="default" size="sm">
                     <LogIn className="h-4 w-4 mr-2" />

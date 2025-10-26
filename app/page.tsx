@@ -1,11 +1,35 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Code2, Sparkles, RefreshCw, Copy, Zap } from "lucide-react"
+import { Code2, Sparkles, RefreshCw, Copy, Zap, LogOut } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Plasma from "@/components/Plasma"
+import { supabase } from "@/lib/supabase"
 
 export default function Home() {
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+    setLoading(false)
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    router.refresh()
+  }
   return (
     <div className="min-h-screen relative">
       {/* Animated Plasma Background */}
@@ -31,9 +55,28 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <Link href="/auth/signin">
-              <Button variant="default">Sign In</Button>
-            </Link>
+            {loading ? (
+              <div className="h-10 w-24 animate-pulse bg-muted rounded" />
+            ) : user ? (
+              <>
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  {user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/signup">
+                  <Button variant="outline" size="sm">Sign Up</Button>
+                </Link>
+                <Link href="/auth/signin">
+                  <Button variant="default" size="sm">Sign In</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
