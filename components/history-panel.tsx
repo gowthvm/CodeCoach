@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, History, Trash2, Sparkles, RefreshCw } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { ChevronLeft, ChevronRight, History, Trash2, Sparkles, RefreshCw, Search, Star, StarOff, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface HistoryItem {
@@ -15,6 +16,7 @@ interface HistoryItem {
   language: string
   complexity?: string
   targetLanguage?: string
+  isFavorite?: boolean
 }
 
 interface HistoryPanelProps {
@@ -25,6 +27,8 @@ interface HistoryPanelProps {
 
 export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryPanelProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterMode, setFilterMode] = useState<"all" | "analyze" | "convert" | "favorites">("all")
   
   const handleToggle = () => {
     const newState = !isOpen
@@ -80,6 +84,42 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
     }
   }
 
+  const toggleFavorite = (id: string) => {
+    const updated = history.map(item => 
+      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+    )
+    setHistory(updated)
+    if (userId) {
+      localStorage.setItem(`history_${userId}`, JSON.stringify(updated))
+    }
+  }
+
+  const filteredHistory = useMemo(() => {
+    let filtered = history
+
+    // Filter by mode
+    if (filterMode === "analyze") {
+      filtered = filtered.filter(item => item.mode === "analyze")
+    } else if (filterMode === "convert") {
+      filtered = filtered.filter(item => item.mode === "convert")
+    } else if (filterMode === "favorites") {
+      filtered = filtered.filter(item => item.isFavorite)
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(item => 
+        item.language.toLowerCase().includes(query) ||
+        item.inputCode.toLowerCase().includes(query) ||
+        item.targetLanguage?.toLowerCase().includes(query) ||
+        item.complexity?.toLowerCase().includes(query)
+      )
+    }
+
+    return filtered
+  }, [history, filterMode, searchQuery])
+
   if (!userId) return null
 
   return (
@@ -108,8 +148,8 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
           {/* Header spacer to align with top bar - exact height match */}
           <div className="h-[73px] border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-md flex-shrink-0"></div>
           
-          <div className="p-4 border-b backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-2">
+          <div className="p-4 border-b backdrop-blur-sm space-y-3">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <History className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-semibold">History</h2>
@@ -125,20 +165,87 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
                 </Button>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Your recent code analysis and conversions
+            
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search history..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 pr-8 h-9"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-9 w-9"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Filter Buttons */}
+            <div className="flex gap-1 flex-wrap">
+              <Button
+                variant={filterMode === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterMode("all")}
+                className="text-xs h-7"
+              >
+                All
+              </Button>
+              <Button
+                variant={filterMode === "analyze" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterMode("analyze")}
+                className="text-xs h-7"
+              >
+                <Sparkles className="h-3 w-3 mr-1" />
+                Analyze
+              </Button>
+              <Button
+                variant={filterMode === "convert" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterMode("convert")}
+                className="text-xs h-7"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Convert
+              </Button>
+              <Button
+                variant={filterMode === "favorites" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterMode("favorites")}
+                className="text-xs h-7"
+              >
+                <Star className="h-3 w-3 mr-1" />
+                Favorites
+              </Button>
+            </div>
+            
+            <p className="text-xs text-muted-foreground">
+              {filteredHistory.length} {filteredHistory.length === 1 ? 'item' : 'items'}
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {history.length === 0 ? (
+            {filteredHistory.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No history yet</p>
-                <p className="text-xs">Your code analysis will appear here</p>
+                <p className="text-sm">
+                  {history.length === 0 ? "No history yet" : "No matching items"}
+                </p>
+                <p className="text-xs">
+                  {history.length === 0 
+                    ? "Your code analysis will appear here" 
+                    : "Try adjusting your search or filters"}
+                </p>
               </div>
             ) : (
-              history.map((item) => (
+              filteredHistory.map((item) => (
                 <Card
                   key={item.id}
                   className="cursor-pointer hover:shadow-md transition-shadow"
@@ -159,17 +266,36 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
                           {item.timestamp.toLocaleDateString()} {item.timestamp.toLocaleTimeString()}
                         </CardDescription>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteHistoryItem(item.id)
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleFavorite(item.id)
+                          }}
+                          aria-label={item.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          {item.isFavorite ? (
+                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                          ) : (
+                            <StarOff className="h-3 w-3" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            deleteHistoryItem(item.id)
+                          }}
+                          aria-label="Delete history item"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-3 pt-0">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
@@ -11,9 +11,15 @@ import { useToast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CodeEditor } from "@/components/code-editor"
-import { Code2, LogOut, Copy, Loader2, Sparkles, RefreshCw, LogIn, Home } from "lucide-react"
+import { CodeEditorSkeleton } from "@/components/code-editor-skeleton"
+import { Code2, LogOut, Copy, Loader2, Sparkles, RefreshCw, LogIn, Home, FileCode, AlertTriangle, Keyboard, HelpCircle } from "lucide-react"
 import { HistoryPanel, saveHistoryItem } from "@/components/history-panel"
 import { FeedbackDisplay } from "@/components/feedback-display"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { codeTemplates, getTemplatesByLanguage } from "@/lib/code-templates"
+import { usePreferences } from "@/hooks/use-preferences"
+import { DashboardDialogs } from "@/components/dashboard-dialogs"
 import Link from "next/link"
 
 const LANGUAGES = [
@@ -48,13 +54,60 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState(0)
   const [mode, setMode] = useState<"analyze" | "convert">("analyze")
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { toast } = useToast()
+  const { preferences, setPreferences, isLoaded } = usePreferences()
 
   useEffect(() => {
     checkUser()
   }, [])
+
+  // Load preferences when available
+  useEffect(() => {
+    if (isLoaded) {
+      setComplexity(preferences.defaultComplexity)
+      setSourceLanguage(preferences.defaultLanguage)
+      setTargetLanguage(preferences.defaultTargetLanguage)
+    }
+  }, [isLoaded, preferences])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + Enter: Analyze/Convert
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault()
+        if (!processing && inputCode.trim()) {
+          mode === 'analyze' ? handleAnalyze() : handleConvert()
+        }
+      }
+      // Ctrl/Cmd + K: Clear
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        if (inputCode || outputCode) {
+          setShowClearConfirm(true)
+        }
+      }
+      // Ctrl/Cmd + /: Show keyboard shortcuts
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault()
+        setShowKeyboardShortcuts(true)
+      }
+      // Ctrl/Cmd + T: Show templates
+      if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+        e.preventDefault()
+        setShowTemplates(true)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [inputCode, outputCode, processing, mode])
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -133,10 +186,11 @@ export default function DashboardPage() {
           })
         }
       }, 400)
-    } catch (error) {
+    } catch (error: any) {
+      setError("analyze")
       toast({
         title: "Error",
-        description: "Failed to analyze code. Please try again.",
+        description: error.message || "Failed to analyze code. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -237,6 +291,21 @@ export default function DashboardPage() {
     setInputCode("")
     setOutputCode("")
     setFeedback("")
+    setError(null)
+    setShowClearConfirm(false)
+  }
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = codeTemplates.find(t => t.id === templateId)
+    if (template) {
+      setInputCode(template.code)
+      setSourceLanguage(template.language)
+      setShowTemplates(false)
+      toast({
+        title: "Template Loaded",
+        description: `${template.name} loaded successfully`,
+      })
+    }
   }
 
   const handleSelectHistory = (item: any) => {
@@ -423,16 +492,52 @@ export default function DashboardPage() {
                 </>
               )}
               <div className="flex items-end gap-2">
-                <Button
-                  onClick={mode === "analyze" ? handleAnalyze : handleConvert}
-                  disabled={processing}
-                  className="flex-1"
-                >
-                  {mode === "analyze" ? "Analyze" : "Convert"}
-                </Button>
-                <Button variant="outline" onClick={handleClear}>
-                  Clear
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={mode === "analyze" ? handleAnalyze : handleConvert}
+                        disabled={processing || !inputCode.trim()}
+                        className="flex-1"
+                      >
+                        {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {mode === "analyze" ? "Analyze" : "Convert"}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Ctrl/Cmd + Enter</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => inputCode || outputCode ? setShowClearConfirm(true) : null}
+                        disabled={!inputCode && !outputCode}
+                      >
+                        Clear
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Ctrl/Cmd + K</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="icon" onClick={() => setShowTemplates(true)}>
+                        <FileCode className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Templates (Ctrl/Cmd + T)</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="icon" onClick={() => setShowKeyboardShortcuts(true)}>
+                        <Keyboard className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Shortcuts (Ctrl/Cmd + /)</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </CardContent>
@@ -505,7 +610,44 @@ export default function DashboardPage() {
             <FeedbackDisplay feedback={feedback} />
           </div>
         )}
+
+        {/* Error State with Retry */}
+        {error && (
+          <Card className="mt-6 border-destructive">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <div className="flex-1">
+                  <h3 className="font-semibold">Something went wrong</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Failed to {error} code. Please try again.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => {
+                    setError(null)
+                    error === "analyze" ? handleAnalyze() : handleConvert()
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
+
+      {/* Dialogs */}
+      <DashboardDialogs
+        showTemplates={showTemplates}
+        setShowTemplates={setShowTemplates}
+        showKeyboardShortcuts={showKeyboardShortcuts}
+        setShowKeyboardShortcuts={setShowKeyboardShortcuts}
+        showClearConfirm={showClearConfirm}
+        setShowClearConfirm={setShowClearConfirm}
+        onTemplateSelect={handleTemplateSelect}
+        onClear={handleClear}
+      />
       </div>
     </div>
   )
