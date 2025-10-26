@@ -83,8 +83,9 @@ export default function DashboardPage() {
     // Simulate smooth progress
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 90) return prev
-        return prev + Math.random() * 15
+        if (prev >= 90) return 90
+        const increment = Math.random() * 10
+        return Math.min(prev + increment, 90)
       })
     }, 300)
 
@@ -161,8 +162,9 @@ export default function DashboardPage() {
     // Simulate smooth progress
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 90) return prev
-        return prev + Math.random() * 15
+        if (prev >= 90) return 90
+        const increment = Math.random() * 10
+        return Math.min(prev + increment, 90)
       })
     }, 300)
 

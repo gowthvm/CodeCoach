@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { fetchWithKeyRotation } from '@/lib/api-key-manager'
 
 // Helper function to validate code syntax and structure
 interface ValidationResult {
@@ -63,10 +64,9 @@ const validateCode = async (code: string, language: string): Promise<ValidationR
 // Helper function to fix common code issues
 const fixCodeIssues = async (code: string, targetLanguage: string, sourceLanguage: string): Promise<string> => {
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -174,10 +174,9 @@ const cleanConvertedCode = (code: string, targetLanguage: string): string => {
 };
 
 async function generateCodeDescription(code: string, sourceLanguage: string): Promise<string> {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -211,10 +210,9 @@ Provide only the description, no code.`
 }
 
 async function generateCodeFromDescription(description: string, targetLanguage: string, sourceLanguage: string): Promise<string> {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -386,10 +384,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     const codeDescription = await generateCodeDescription(code, sourceLanguage);
     
     // Then, generate the target code from the description
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

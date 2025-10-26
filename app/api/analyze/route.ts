@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { fetchWithKeyRotation } from '@/lib/api-key-manager'
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,10 +42,9 @@ Code to analyze:
 ${code}`
 
     // First API call - Get commented code
-    const codeResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const codeResponse = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -72,10 +72,9 @@ ${code}`
     }
 
     // Second API call - Get feedback
-    const feedbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const feedbackResponse = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
