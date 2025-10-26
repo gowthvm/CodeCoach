@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CodeEditor } from "@/components/code-editor"
-import { Code2, LogOut, Copy, Loader2, Sparkles, RefreshCw, LogIn } from "lucide-react"
+import { Code2, LogOut, Copy, Loader2, Sparkles, RefreshCw, LogIn, Home } from "lucide-react"
 import { HistoryPanel, saveHistoryItem } from "@/components/history-panel"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import Link from "next/link"
@@ -224,6 +224,12 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-2">
             <Code2 className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold">CodeCoach</h1>
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="ml-2">
+                <Home className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
