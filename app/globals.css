@@ -4,50 +4,179 @@
 
 @layer base {
   :root {
-    /* Light Mode: Green and White */
+    /* Light Mode: Clean & Crisp */
     --background: 0 0% 100%;
-    --foreground: 140 60% 15%;
+    --foreground: 150 50% 10%;
+
     --card: 0 0% 100%;
-    --card-foreground: 140 60% 15%;
+    --card-foreground: 150 50% 10%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 140 60% 15%;
-    --primary: 142 76% 36%;
+    --popover-foreground: 150 50% 10%;
+
+    /* Electric Emerald Primary */
+    --primary: 150 100% 35%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 138 50% 96%;
-    --secondary-foreground: 140 60% 15%;
-    --muted: 138 30% 95%;
-    --muted-foreground: 140 20% 40%;
-    --accent: 142 70% 92%;
-    --accent-foreground: 140 60% 20%;
+
+    /* Soft Mint Secondary */
+    --secondary: 150 30% 96%;
+    --secondary-foreground: 150 50% 10%;
+
+    --muted: 150 20% 94%;
+    --muted-foreground: 150 10% 40%;
+
+    --accent: 150 30% 94%;
+    --accent-foreground: 150 50% 10%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 142 30% 88%;
-    --input: 142 30% 88%;
-    --ring: 142 76% 36%;
-    --radius: 0.5rem;
+
+    --border: 150 20% 90%;
+    --input: 150 20% 90%;
+    --ring: 150 100% 35%;
+
+    --radius: 0.75rem;
   }
 
   .dark {
-    /* Dark Mode: Green and Black */
-    --background: 140 20% 8%;
-    --foreground: 142 70% 85%;
-    --card: 140 25% 12%;
-    --card-foreground: 142 70% 85%;
-    --popover: 140 25% 12%;
-    --popover-foreground: 142 70% 85%;
-    --primary: 142 76% 45%;
-    --primary-foreground: 140 20% 8%;
-    --secondary: 140 20% 18%;
-    --secondary-foreground: 142 70% 85%;
-    --muted: 140 15% 20%;
-    --muted-foreground: 142 30% 60%;
-    --accent: 140 25% 22%;
-    --accent-foreground: 142 70% 85%;
-    --destructive: 0 62.8% 50%;
+    /* Dark Mode: Deep Jungle */
+    --background: 150 50% 4%;
+    --foreground: 150 10% 90%;
+
+    --card: 150 40% 6%;
+    --card-foreground: 150 10% 90%;
+
+    --popover: 150 40% 6%;
+    --popover-foreground: 150 10% 90%;
+
+    /* Neon Emerald Primary */
+    --primary: 150 100% 45%;
+    --primary-foreground: 150 50% 4%;
+
+    --secondary: 150 30% 10%;
+    --secondary-foreground: 150 10% 90%;
+
+    --muted: 150 30% 10%;
+    --muted-foreground: 150 10% 60%;
+
+    --accent: 150 30% 12%;
+    --accent-foreground: 150 10% 90%;
+
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 140 20% 22%;
-    --input: 140 20% 22%;
-    --ring: 142 76% 45%;
+
+    --border: 150 30% 12%;
+    --input: 150 30% 12%;
+    --ring: 150 100% 45%;
+  }
+}
+
+@layer utilities {
+  /* Glass Effects */
+  .glass {
+    @apply bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/20 dark:border-white/10;
+  }
+
+  .glass-card {
+    @apply bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl;
+  }
+
+  /* Mesh Gradients */
+  .mesh-gradient {
+    background-color: hsla(150, 100%, 2%, 1);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(150, 100%, 10%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(160, 100%, 10%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(150, 100%, 10%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(160, 100%, 10%, 0.4) 0px, transparent 50%);
+  }
+
+  .mesh-gradient-light {
+    background-color: hsla(150, 20%, 98%, 1);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(150, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(160, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(150, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(160, 80%, 95%, 1) 0px, transparent 50%);
+  }
+
+  /* Glow Effects */
+  .glow-primary {
+    @apply shadow-[0_0_20px_rgba(0,255,150,0.3)];
+  }
+
+  .glow-primary-lg {
+    @apply shadow-[0_0_40px_rgba(0,255,150,0.4)];
+  }
+
+  .glow-primary-xl {
+    @apply shadow-[0_0_60px_rgba(0,255,150,0.5)];
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,150,0.3)];
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .hover-scale-sm {
+    @apply transition-transform duration-300 hover:scale-102;
+  }
+
+  /* Gradient Utilities */
+  .gradient-emerald {
+    @apply bg-gradient-to-r from-emerald-400 to-teal-500;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary via-teal-400 to-emerald-500;
+  }
+
+  /* Text Effects */
+  .text-hero {
+    @apply text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter;
+  }
+
+  .text-section-title {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+
+  /* Spacing */
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  .container-tight {
+    @apply container mx-auto px-4 md:px-6;
+  }
+
+  /* Code Block Styling */
+  .code-block {
+    @apply bg-[#1e1e1e] rounded-xl border border-white/10 shadow-2xl overflow-hidden;
+  }
+
+  .code-header {
+    @apply flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/30;
+  }
+
+  .code-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-teal-500 text-white font-semibold rounded-lg px-6 py-3 transition-all duration-300 hover:shadow-lg hover:shadow-primary/50 hover:-translate-y-0.5;
+  }
+
+  .btn-glass {
+    @apply bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300;
   }
 }
 
@@ -55,7 +184,73 @@
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(150, 80%, 95%, 1) 0px, transparent 55%),
+      radial-gradient(at 100% 0%, hsla(160, 80%, 95%, 0.9) 0px, transparent 55%),
+      radial-gradient(at 100% 100%, hsla(150, 80%, 92%, 0.95) 0px, transparent 55%),
+      radial-gradient(at 0% 100%, hsla(160, 80%, 93%, 0.9) 0px, transparent 55%);
+  }
+
+  .dark body {
+    background-color: hsla(150, 50%, 1.5%, 1);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(150, 100%, 7%, 0.7) 0px, transparent 55%),
+      radial-gradient(at 100% 0%, hsla(160, 100%, 9%, 0.65) 0px, transparent 55%),
+      radial-gradient(at 100% 100%, hsla(150, 100%, 7%, 0.7) 0px, transparent 55%),
+      radial-gradient(at 0% 100%, hsla(160, 100%, 9%, 0.65) 0px, transparent 55%);
+  }
+}
+
+/* Animations */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 150, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 255, 150, 0.5); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@layer utilities {
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 5s ease-in-out infinite 1s;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 1000px 100%;
   }
 }

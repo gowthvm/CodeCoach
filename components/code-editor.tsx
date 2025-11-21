@@ -1,11 +1,22 @@
 "use client"
 
-import React, { useState } from "react"
-import Editor from "@monaco-editor/react"
+import { Editor, OnMount } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
+import { useRef, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ZoomIn, ZoomOut, Download, Type, Maximize2, Minimize2 } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Download, Maximize2, Minimize2, Type, ListOrdered } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface CodeEditorProps {
   value: string
@@ -27,162 +38,126 @@ export function CodeEditor({
   fileName,
 }: CodeEditorProps) {
   const { theme } = useTheme()
+  const editorRef = useRef<any>(null)
   const [fontSize, setFontSize] = useState(14)
   const [lineNumbers, setLineNumbers] = useState(true)
-  const [wordWrap, setWordWrap] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  const increaseFontSize = () => setFontSize(prev => Math.min(prev + 2, 24))
-  const decreaseFontSize = () => setFontSize(prev => Math.max(prev - 2, 10))
-  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor
+
+    // Add custom keybinding for save
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      if (fileName) handleDownload()
+    })
+  }
+
   const handleDownload = () => {
-    const extension = getFileExtension(language)
-    const filename = fileName || `code.${extension}`
-    const blob = new Blob([value], { type: 'text/plain' })
+    const blob = new Blob([value], { type: "text/plain" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
-    a.download = filename
+    a.download = fileName || `code.${language === "javascript" ? "js" : language === "python" ? "py" : "txt"}`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
-  const getFileExtension = (lang: string): string => {
-    const extensions: Record<string, string> = {
-      javascript: 'js',
-      typescript: 'ts',
-      python: 'py',
-      java: 'java',
-      cpp: 'cpp',
-      csharp: 'cs',
-      go: 'go',
-      rust: 'rs',
-      php: 'php',
-      ruby: 'rb',
-    }
-    return extensions[lang] || 'txt'
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
   }
 
-  const editorHeight = isFullscreen ? '80vh' : height
+  if (!mounted) return null
+
+  const editorHeight = isFullscreen ? "100vh" : height
 
   return (
-    <div className={`rounded-md overflow-hidden border ${isFullscreen ? 'fixed inset-4 z-50 bg-background' : ''}`}>
+    <div className={`relative group transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 bg-background' : 'rounded-md overflow-hidden border border-border/50'}`}>
       {showControls && (
         <TooltipProvider>
-          <div className="flex items-center justify-between gap-2 p-2 border-b bg-muted/50">
+          <div className={`flex items-center justify-between gap-2 p-2 border-b bg-muted/30 backdrop-blur-sm ${isFullscreen ? 'px-4' : ''}`}>
             <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={decreaseFontSize}
-                    disabled={fontSize <= 10}
-                    aria-label="Decrease font size"
-                  >
-                    <ZoomOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Decrease font size</TooltipContent>
-              </Tooltip>
-              
-              <span className="text-xs text-muted-foreground px-2 min-w-[3rem] text-center">
-                {fontSize}px
-              </span>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={increaseFontSize}
-                    disabled={fontSize >= 24}
-                    aria-label="Increase font size"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Increase font size</TooltipContent>
-              </Tooltip>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={lineNumbers ? "default" : "ghost"}
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setLineNumbers(!lineNumbers)}
-                    aria-label="Toggle line numbers"
-                  >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                     <Type className="h-4 w-4" />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>Toggle line numbers</TooltipContent>
-              </Tooltip>
-              
-              {value && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={handleDownload}
-                      aria-label="Download code"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Download as file</TooltipContent>
-                </Tooltip>
-              )}
-              
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {[12, 14, 16, 18, 20].map((size) => (
+                    <DropdownMenuItem key={size} onClick={() => setFontSize(size)}>
+                      {size}px
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setIsFullscreen(!isFullscreen)}
-                    aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                    size="sm"
+                    className={`h-8 w-8 p-0 ${lineNumbers ? 'bg-accent' : ''}`}
+                    onClick={() => setLineNumbers(!lineNumbers)}
                   >
+                    <ListOrdered className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Toggle Line Numbers</TooltipContent>
+              </Tooltip>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleDownload}>
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Download Code</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={toggleFullscreen}>
                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}</TooltipContent>
+                <TooltipContent>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</TooltipContent>
               </Tooltip>
             </div>
           </div>
         </TooltipProvider>
       )}
       <Editor
-        height={editorHeight}
+        height={isFullscreen ? "calc(100vh - 48px)" : height}
         language={language}
         value={value}
         onChange={onChange}
         theme={theme === "dark" ? "vs-dark" : "light"}
+        onMount={handleEditorDidMount}
         options={{
-          readOnly,
-          minimap: { enabled: value.split("\n").length > 50 },
-          fontSize,
-          lineHeight: 1.6,
+          minimap: { enabled: false },
+          fontSize: fontSize,
+          lineNumbers: lineNumbers ? "on" : "off",
+          readOnly: readOnly,
           scrollBeyondLastLine: false,
           automaticLayout: true,
-          tabSize: 2,
-          wordWrap: wordWrap ? "on" : "off",
-          lineNumbers: lineNumbers ? "on" : "off",
-          quickSuggestions: false,
-          suggestOnTriggerCharacters: false,
-          acceptSuggestionOnCommitCharacter: false,
-          acceptSuggestionOnEnter: "off",
-          parameterHints: { enabled: false },
+          fontFamily: "var(--font-mono)",
+          fontLigatures: true,
+          padding: { top: 16, bottom: 16 },
+          smoothScrolling: true,
+          cursorBlinking: "smooth",
+          cursorSmoothCaretAnimation: "on",
+          renderLineHighlight: "all",
         }}
+        className="min-h-[300px]"
       />
     </div>
   )

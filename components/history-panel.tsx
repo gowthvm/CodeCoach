@@ -4,8 +4,11 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { ChevronLeft, ChevronRight, History, Trash2, Sparkles, RefreshCw, Search, Star, StarOff, X } from "lucide-react"
+import { History, Trash2, Sparkles, RefreshCw, Search, Star, StarOff, X, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { EmptyState } from "@/components/empty-state"
 
 interface HistoryItem {
   id: string
@@ -29,7 +32,7 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterMode, setFilterMode] = useState<"all" | "analyze" | "convert" | "favorites">("all")
-  
+
   const handleToggle = () => {
     const newState = !isOpen
     setIsOpen(newState)
@@ -38,9 +41,8 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
   const [history, setHistory] = useState<HistoryItem[]>([])
 
   const loadHistory = useCallback(() => {
-    // Load from localStorage for now (can be replaced with Supabase later)
     if (!userId) return;
-    
+
     const stored = localStorage.getItem(`history_${userId}`)
     if (stored) {
       const parsed = JSON.parse(stored)
@@ -85,7 +87,7 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
   }
 
   const toggleFavorite = (id: string) => {
-    const updated = history.map(item => 
+    const updated = history.map(item =>
       item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
     )
     setHistory(updated)
@@ -109,7 +111,7 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.language.toLowerCase().includes(query) ||
         item.inputCode.toLowerCase().includes(query) ||
         item.targetLanguage?.toLowerCase().includes(query) ||
@@ -125,216 +127,230 @@ export function HistoryPanel({ userId, onSelectHistory, onOpenChange }: HistoryP
   return (
     <>
       {/* Toggle Button */}
-      <Button
-        variant={isOpen ? "default" : "outline"}
-        size="icon"
-        className={cn(
-          "fixed top-[88px] z-20 shadow-md transition-all duration-300",
-          isOpen ? "left-[336px]" : "left-4"
-        )}
-        onClick={handleToggle}
+      <motion.div
+        initial={false}
+        animate={{ left: isOpen ? 320 : 16 }} // 320px is w-80
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed top-[88px] z-40"
       >
-        <History className="h-5 w-5" />
-      </Button>
+        <Button
+          variant="default"
+          size="icon"
+          className="shadow-lg rounded-full h-10 w-10 bg-primary text-primary-foreground hover:scale-110 transition-transform"
+          onClick={handleToggle}
+        >
+          {isOpen ? <ChevronRight className="h-5 w-5 rotate-180" /> : <History className="h-5 w-5" />}
+        </Button>
+      </motion.div>
 
       {/* Side Panel */}
-      <div
-        className={cn(
-          "fixed top-0 left-0 h-full w-80 border-r z-10 transition-transform duration-300 ease-in-out overflow-hidden",
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        )}
+      <motion.div
+        initial={{ x: "-100%" }}
+        animate={{ x: isOpen ? 0 : "-100%" }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed top-0 left-0 h-full w-80 border-r z-30 glass shadow-2xl overflow-hidden flex flex-col"
       >
-        <div className="h-full flex flex-col bg-background/95 backdrop-blur-md">
-          {/* Header spacer to align with top bar - exact height match */}
-          <div className="h-[73px] border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-md flex-shrink-0"></div>
-          
-          <div className="p-4 border-b backdrop-blur-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <History className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">History</h2>
-              </div>
-              {history.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearHistory}
-                  className="text-xs"
-                >
-                  Clear All
-                </Button>
-              )}
-            </div>
-            
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search history..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-8 h-9"
-              />
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-9 w-9"
-                  onClick={() => setSearchQuery("")}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            
-            {/* Filter Buttons */}
-            <div className="flex gap-1 flex-wrap">
-              <Button
-                variant={filterMode === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterMode("all")}
-                className="text-xs h-7"
-              >
-                All
-              </Button>
-              <Button
-                variant={filterMode === "analyze" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterMode("analyze")}
-                className="text-xs h-7"
-              >
-                <Sparkles className="h-3 w-3 mr-1" />
-                Analyze
-              </Button>
-              <Button
-                variant={filterMode === "convert" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterMode("convert")}
-                className="text-xs h-7"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Convert
-              </Button>
-              <Button
-                variant={filterMode === "favorites" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterMode("favorites")}
-                className="text-xs h-7"
-              >
-                <Star className="h-3 w-3 mr-1" />
-                Favorites
-              </Button>
-            </div>
-            
-            <p className="text-xs text-muted-foreground">
-              {filteredHistory.length} {filteredHistory.length === 1 ? 'item' : 'items'}
-            </p>
-          </div>
+        {/* Header spacer to align with top bar */}
+        <div className="h-[73px] flex-shrink-0"></div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {filteredHistory.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">
-                  {history.length === 0 ? "No history yet" : "No matching items"}
-                </p>
-                <p className="text-xs">
-                  {history.length === 0 
-                    ? "Your code analysis will appear here" 
-                    : "Try adjusting your search or filters"}
-                </p>
-              </div>
-            ) : (
-              filteredHistory.map((item) => (
-                <Card
-                  key={item.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => onSelectHistory(item)}
-                >
-                  <CardHeader className="p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-sm flex items-center gap-2">
-                          {item.mode === "analyze" ? (
-                            <Sparkles className="h-3 w-3" />
-                          ) : (
-                            <RefreshCw className="h-3 w-3" />
-                          )}
-                          {item.mode === "analyze" ? "Analysis" : "Conversion"}
-                        </CardTitle>
-                        <CardDescription className="text-xs mt-1">
-                          {item.timestamp.toLocaleDateString()} {item.timestamp.toLocaleTimeString()}
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleFavorite(item.id)
-                          }}
-                          aria-label={item.isFavorite ? "Remove from favorites" : "Add to favorites"}
-                        >
-                          {item.isFavorite ? (
-                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                          ) : (
-                            <StarOff className="h-3 w-3" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            deleteHistoryItem(item.id)
-                          }}
-                          aria-label="Delete history item"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0">
-                    <div className="text-xs space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Language:</span>
-                        <span className="text-muted-foreground">{item.language}</span>
-                      </div>
-                      {item.mode === "analyze" && item.complexity && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Level:</span>
-                          <span className="text-muted-foreground capitalize">{item.complexity}</span>
-                        </div>
-                      )}
-                      {item.mode === "convert" && item.targetLanguage && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">To:</span>
-                          <span className="text-muted-foreground">{item.targetLanguage}</span>
-                        </div>
-                      )}
-                      <div className="mt-2 p-2 bg-muted rounded text-xs font-mono truncate">
-                        {item.inputCode.split('\n')[0]}...
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+        <div className="p-4 border-b bg-white/5 dark:bg-black/5 backdrop-blur-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <History className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">History</h2>
+            </div>
+            {history.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearHistory}
+                className="text-xs hover:text-destructive"
+              >
+                Clear All
+              </Button>
             )}
           </div>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search history..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 pr-8 h-9 bg-background/50 border-none focus:ring-1 focus:ring-primary/50"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-9 w-9 hover:bg-transparent"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-1 flex-wrap">
+            <Button
+              variant={filterMode === "all" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilterMode("all")}
+              className="text-xs h-7 rounded-full"
+            >
+              All
+            </Button>
+            <Button
+              variant={filterMode === "analyze" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilterMode("analyze")}
+              className="text-xs h-7 rounded-full"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              Analyze
+            </Button>
+            <Button
+              variant={filterMode === "convert" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilterMode("convert")}
+              className="text-xs h-7 rounded-full"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Convert
+            </Button>
+            <Button
+              variant={filterMode === "favorites" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setFilterMode("favorites")}
+              className="text-xs h-7 rounded-full"
+            >
+              <Star className="h-3 w-3 mr-1" />
+              Favorites
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            {filteredHistory.length} {filteredHistory.length === 1 ? 'item' : 'items'}
+          </p>
         </div>
-      </div>
+
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-3 pb-20">
+            {filteredHistory.length === 0 ? (
+              <EmptyState
+                icon={History}
+                title={history.length === 0 ? "No history yet" : "No matching items"}
+                description={history.length === 0
+                  ? "Your code analysis will appear here"
+                  : "Try adjusting your search or filters"}
+              />
+            ) : (
+              <AnimatePresence>
+                {filteredHistory.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 border-border/50 bg-card/50 hover:bg-card/80 group"
+                      onClick={() => onSelectHistory(item)}
+                    >
+                      <CardHeader className="p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                              {item.mode === "analyze" ? (
+                                <span className="flex items-center text-blue-500 dark:text-blue-400">
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  Analysis
+                                </span>
+                              ) : (
+                                <span className="flex items-center text-purple-500 dark:text-purple-400">
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Conversion
+                                </span>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="text-xs mt-1 font-mono">
+                              {item.timestamp.toLocaleDateString()} • {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </CardDescription>
+                          </div>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 hover:bg-background/80"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleFavorite(item.id)
+                              }}
+                            >
+                              {item.isFavorite ? (
+                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                              ) : (
+                                <StarOff className="h-3 w-3" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteHistoryItem(item.id)
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-0">
+                        <div className="text-xs space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium text-[10px] uppercase tracking-wider">
+                              {item.language}
+                            </span>
+                            {item.mode === "convert" && item.targetLanguage && (
+                              <span className="text-muted-foreground flex items-center gap-1">
+                                <ChevronRight className="h-3 w-3" />
+                                <span className="px-1.5 py-0.5 rounded-md bg-secondary text-secondary-foreground font-medium text-[10px] uppercase tracking-wider">
+                                  {item.targetLanguage}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="p-2 bg-muted/50 rounded-md text-xs font-mono truncate border border-border/50">
+                            {item.inputCode.split('\n')[0] || "// Empty code"}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
+          </div>
+        </ScrollArea>
+      </motion.div>
 
       {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 z-[5] transition-opacity duration-300"
-          onClick={handleToggle}
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-20"
+            onClick={handleToggle}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }

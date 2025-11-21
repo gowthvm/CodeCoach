@@ -18,6 +18,10 @@ class ApiKeyManager {
     const apiKeyEnv = process.env.OPENROUTER_API_KEY || '';
     const keys = apiKeyEnv.split(',').map(key => key.trim()).filter(key => key.length > 0);
     
+    if (keys.length === 0) {
+      console.warn('⚠️ Warning: No OPENROUTER_API_KEY environment variable found. API calls will fail.');
+    }
+    
     this.config = {
       keys: keys.length > 0 ? keys : [],
       currentIndex: 0,
