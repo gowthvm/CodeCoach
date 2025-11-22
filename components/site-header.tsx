@@ -8,14 +8,29 @@ import { Code2, LogOut } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { supabase } from "@/lib/supabase"
 
-interface SiteHeaderProps {
-  user?: any
-  loading?: boolean
-}
-
-export function SiteHeader({ user, loading }: SiteHeaderProps) {
+export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+      router.refresh()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
 
   // Determine active nav based on pathname
   const getActiveNav = (path: string) => {
@@ -78,8 +93,8 @@ export function SiteHeader({ user, loading }: SiteHeaderProps) {
                   >
                     <span
                       className={`relative z-10 transition-colors duration-200 ${isActive
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                       {item.name}
@@ -95,8 +110,8 @@ export function SiteHeader({ user, loading }: SiteHeaderProps) {
                 >
                   <span
                     className={`relative z-10 transition-colors duration-200 ${pathname === "/dashboard"
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
                       }`}
                   >
                     History
