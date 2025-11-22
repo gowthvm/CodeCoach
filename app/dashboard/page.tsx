@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Progress } from "@/components/ui/progress"
 import { CodeEditor } from "@/components/code-editor"
-import { Copy, Loader2, Sparkles, RefreshCw, FileCode, AlertTriangle, Keyboard } from "lucide-react"
+import { Copy, Loader2, Sparkles, RefreshCw, FileCode, AlertTriangle, Keyboard, Zap } from "lucide-react"
 import { HistoryPanel, saveHistoryItem } from "@/components/history-panel"
 import { FeedbackDisplay } from "@/components/feedback-display"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -320,38 +320,55 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-primary/5 rounded-full blur-3xl -z-10 opacity-50 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl -z-10 opacity-50 pointer-events-none" />
+
       {/* History Panel */}
       <HistoryPanel userId={user?.id || null} onSelectHistory={handleSelectHistory} onOpenChange={setIsPanelOpen} />
 
       {/* Main Content Wrapper */}
       <div className={`transition-all duration-300 ease-in-out ${isPanelOpen ? 'ml-80' : 'ml-0'}`}>
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6"
+            className="mb-8"
           >
-            <h2 className="text-3xl font-bold mb-2">
-              {user ? `Welcome back, ${user.email?.split('@')[0]}!` : 'Welcome to CodeCoach'}
-            </h2>
-            <p className="text-muted-foreground">
-              Analyze code with intelligent comments or convert between programming languages
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-2 tracking-tight">
+                  {user ? (
+                    <>
+                      Welcome back, <span className="bg-clip-text text-transparent gradient-primary animate-gradient">{user.email?.split('@')[0]}</span>
+                    </>
+                  ) : (
+                    <>
+                      Welcome to <span className="bg-clip-text text-transparent gradient-primary animate-gradient">CodeCoach</span>
+                    </>
+                  )}
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  Your intelligent pair programmer for analysis and translation.
+                </p>
+              </div>
               {!user && (
-                <span className="block mt-1 text-sm">
-                  💡 Sign in to save your history and access it anytime
-                </span>
+                <div className="flex items-center gap-2 text-sm bg-primary/10 text-primary px-4 py-2 rounded-full border border-primary/20">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Sign in to save history</span>
+                </div>
               )}
-            </p>
+            </div>
           </motion.div>
 
           {/* Mode Selection */}
@@ -359,24 +376,28 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex gap-4 mb-6"
+            className="flex p-1 bg-muted/50 backdrop-blur-sm rounded-xl mb-8 border border-border/50 w-full max-w-md mx-auto md:mx-0"
           >
-            <Button
-              variant={mode === "analyze" ? "default" : "outline"}
+            <button
               onClick={() => setMode("analyze")}
-              className="flex-1 h-12 text-lg shadow-md transition-all hover:scale-[1.02]"
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${mode === "analyze"
+                  ? "bg-background text-primary shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                }`}
             >
-              <Sparkles className="mr-2 h-5 w-5" />
+              <Sparkles className="h-4 w-4" />
               Analyze Code
-            </Button>
-            <Button
-              variant={mode === "convert" ? "default" : "outline"}
+            </button>
+            <button
               onClick={() => setMode("convert")}
-              className="flex-1 h-12 text-lg shadow-md transition-all hover:scale-[1.02]"
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${mode === "convert"
+                  ? "bg-background text-primary shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                }`}
             >
-              <RefreshCw className="mr-2 h-5 w-5" />
+              <RefreshCw className="h-4 w-4" />
               Convert Code
-            </Button>
+            </button>
           </motion.div>
 
           {/* Controls */}
@@ -385,23 +406,30 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Card className="mb-6 glass-card hover-lift">
-              <CardHeader>
-                <CardTitle>Settings</CardTitle>
-                <CardDescription>
-                  {mode === "analyze"
-                    ? "Configure analysis complexity level"
-                    : "Select source and target languages"}
-                </CardDescription>
+            <Card className="mb-8 glass-card hover-lift border-primary/10">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-lg ${mode === 'analyze' ? 'bg-primary/10 text-primary' : 'bg-purple-500/10 text-purple-500'}`}>
+                    {mode === 'analyze' ? <Zap className="h-5 w-5" /> : <RefreshCw className="h-5 w-5" />}
+                  </div>
+                  <div>
+                    <CardTitle>{mode === "analyze" ? "Analysis Settings" : "Conversion Settings"}</CardTitle>
+                    <CardDescription>
+                      {mode === "analyze"
+                        ? "Configure how you want your code analyzed"
+                        : "Select source and target languages for translation"}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   {mode === "analyze" ? (
                     <>
-                      <div className="space-y-2">
+                      <div className="md:col-span-4 space-y-2">
                         <Label>Complexity Level</Label>
                         <Select value={complexity} onValueChange={setComplexity}>
-                          <SelectTrigger className="bg-background/50">
+                          <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -413,10 +441,10 @@ export default function DashboardPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div className="md:col-span-4 space-y-2">
                         <Label>Language</Label>
                         <Select value={sourceLanguage} onValueChange={setSourceLanguage}>
-                          <SelectTrigger className="bg-background/50">
+                          <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -431,10 +459,10 @@ export default function DashboardPage() {
                     </>
                   ) : (
                     <>
-                      <div className="space-y-2">
+                      <div className="md:col-span-4 space-y-2">
                         <Label>Source Language</Label>
                         <Select value={sourceLanguage} onValueChange={setSourceLanguage}>
-                          <SelectTrigger className="bg-background/50">
+                          <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -446,10 +474,10 @@ export default function DashboardPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div className="md:col-span-4 space-y-2">
                         <Label>Target Language</Label>
                         <Select value={targetLanguage} onValueChange={setTargetLanguage}>
-                          <SelectTrigger className="bg-background/50">
+                          <SelectTrigger className="bg-background/50 border-primary/20 focus:ring-primary/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -463,53 +491,62 @@ export default function DashboardPage() {
                       </div>
                     </>
                   )}
-                  <div className="flex items-end gap-2">
+
+                  <div className="md:col-span-4 flex items-end gap-2">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
                             onClick={mode === "analyze" ? handleAnalyze : handleConvert}
                             disabled={processing || !inputCode.trim()}
-                            className="flex-1 shadow-lg hover:shadow-primary/25 transition-all"
+                            className="flex-1 h-10 shadow-lg hover:shadow-primary/25 transition-all bg-gradient-to-r from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90 text-white border-0"
                           >
-                            {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {mode === "analyze" ? "Analyze" : "Convert"}
+                            {processing ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              mode === "analyze" ? <Sparkles className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />
+                            )}
+                            {mode === "analyze" ? "Analyze Code" : "Convert Code"}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Ctrl/Cmd + Enter</TooltipContent>
                       </Tooltip>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            onClick={() => inputCode || outputCode ? setShowClearConfirm(true) : null}
-                            disabled={!inputCode && !outputCode}
-                            className="bg-background/50"
-                          >
-                            Clear
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Ctrl/Cmd + K</TooltipContent>
-                      </Tooltip>
+                      <div className="flex gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => inputCode || outputCode ? setShowClearConfirm(true) : null}
+                              disabled={!inputCode && !outputCode}
+                              className="bg-background/50 border-primary/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                            >
+                              <span className="sr-only">Clear</span>
+                              <span aria-hidden="true">×</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Clear (Ctrl/Cmd + K)</TooltipContent>
+                        </Tooltip>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => setShowTemplates(true)} className="bg-background/50">
-                            <FileCode className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Templates (Ctrl/Cmd + T)</TooltipContent>
-                      </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={() => setShowTemplates(true)} className="bg-background/50 border-primary/20 hover:bg-primary/10 hover:text-primary">
+                              <FileCode className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Templates (Ctrl/Cmd + T)</TooltipContent>
+                        </Tooltip>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon" onClick={() => setShowKeyboardShortcuts(true)} className="bg-background/50">
-                            <Keyboard className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Shortcuts (Ctrl/Cmd + /)</TooltipContent>
-                      </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={() => setShowKeyboardShortcuts(true)} className="bg-background/50 border-primary/20 hover:bg-primary/10 hover:text-primary">
+                              <Keyboard className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Shortcuts (Ctrl/Cmd + /)</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </TooltipProvider>
                   </div>
                 </div>
@@ -524,18 +561,19 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-6"
+                className="mb-8 overflow-hidden"
               >
-                <Card className="glass-card">
-                  <CardContent className="pt-6">
-                    <div className="space-y-2">
+                <Card className="glass-card border-primary/20">
+                  <CardContent className="pt-6 pb-6">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {mode === "analyze" ? "Analyzing code..." : "Converting code..."}
-                        </span>
-                        <span className="font-medium">{Math.round(progress)}%</span>
+                        <div className="flex items-center gap-2 text-primary font-medium">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {mode === "analyze" ? "Analyzing code structure..." : "Translating syntax..."}
+                        </div>
+                        <span className="font-mono text-xs text-muted-foreground">{Math.round(progress)}%</span>
                       </div>
-                      <Progress value={progress} className="h-2" />
+                      <Progress value={progress} className="h-1.5 bg-primary/10" indicatorClassName="bg-gradient-to-r from-primary to-teal-500" />
                     </div>
                   </CardContent>
                 </Card>
@@ -544,58 +582,70 @@ export default function DashboardPage() {
           </AnimatePresence>
 
           {/* Code Editors */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              className="h-full"
             >
-              <Card className="glass-card h-full">
-                <CardHeader>
-                  <CardTitle>Input Code</CardTitle>
-                  <CardDescription>Paste your code here</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 overflow-hidden rounded-b-xl">
+              <div className="code-block h-full flex flex-col border-primary/10 shadow-xl">
+                <div className="code-header justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="code-dot bg-red-500/80" />
+                      <div className="code-dot bg-yellow-500/80" />
+                      <div className="code-dot bg-green-500/80" />
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono ml-2">input.{sourceLanguage === 'csharp' ? 'cs' : sourceLanguage === 'cpp' ? 'cpp' : sourceLanguage === 'javascript' ? 'js' : sourceLanguage === 'typescript' ? 'ts' : sourceLanguage === 'python' ? 'py' : sourceLanguage}</span>
+                  </div>
+                  <div className="text-xs font-medium text-muted-foreground">Input</div>
+                </div>
+                <div className="flex-grow bg-[#1e1e1e] relative">
                   <CodeEditor
                     value={inputCode}
                     onChange={(value) => setInputCode(value || "")}
                     language={sourceLanguage}
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              className="h-full"
             >
-              <Card className="glass-card h-full">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>
-                      {mode === "analyze" ? "Analyzed Code" : "Converted Code"}
-                    </CardTitle>
-                    <CardDescription>
-                      {mode === "analyze"
-                        ? "Code with inline comments"
-                        : `Code converted to ${targetLanguage}`}
-                    </CardDescription>
+              <div className="code-block h-full flex flex-col border-primary/10 shadow-xl">
+                <div className="code-header justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="code-dot bg-red-500/80" />
+                      <div className="code-dot bg-yellow-500/80" />
+                      <div className="code-dot bg-green-500/80" />
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono ml-2">output.{mode === 'analyze' ? (sourceLanguage === 'csharp' ? 'cs' : sourceLanguage === 'cpp' ? 'cpp' : sourceLanguage === 'javascript' ? 'js' : sourceLanguage === 'typescript' ? 'ts' : sourceLanguage === 'python' ? 'py' : sourceLanguage) : (targetLanguage === 'csharp' ? 'cs' : targetLanguage === 'cpp' ? 'cpp' : targetLanguage === 'javascript' ? 'js' : targetLanguage === 'typescript' ? 'ts' : targetLanguage === 'python' ? 'py' : targetLanguage)}</span>
                   </div>
-                  {outputCode && (
-                    <Button variant="outline" size="icon" onClick={handleCopy}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  )}
-                </CardHeader>
-                <CardContent className="p-0 overflow-hidden rounded-b-xl">
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      {mode === "analyze" ? "Analysis" : "Output"}
+                    </div>
+                    {outputCode && (
+                      <Button variant="ghost" size="icon" onClick={handleCopy} className="h-6 w-6 text-muted-foreground hover:text-primary">
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-grow bg-[#1e1e1e] relative">
                   <CodeEditor
                     value={outputCode}
                     language={mode === "analyze" ? sourceLanguage : targetLanguage}
                     readOnly
                   />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
           </div>
 
@@ -607,7 +657,7 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 ref={feedbackRef}
-                className="mt-6"
+                className="mt-8"
               >
                 <FeedbackDisplay feedback={feedback} />
               </motion.div>
@@ -616,27 +666,37 @@ export default function DashboardPage() {
 
           {/* Error State with Retry */}
           {error && (
-            <Card className="mt-6 border-destructive glass-card">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <AlertTriangle className="h-8 w-8 text-destructive" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">Something went wrong</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Failed to {error} code. Please try again.
-                    </p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-8"
+            >
+              <Card className="border-destructive/50 bg-destructive/5 glass-card">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-destructive/10 text-destructive">
+                      <AlertTriangle className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-destructive">Something went wrong</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Failed to {error} code. Please try again.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => {
+                        setError(null)
+                        error === "analyze" ? handleAnalyze() : handleConvert()
+                      }}
+                    >
+                      Retry
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => {
-                      setError(null)
-                      error === "analyze" ? handleAnalyze() : handleConvert()
-                    }}
-                  >
-                    Retry
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
         </main>
 
@@ -655,3 +715,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+
