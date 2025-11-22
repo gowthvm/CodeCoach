@@ -1,0 +1,115 @@
+{
+  "tested": "2025-11-22T07:14:22.891Z",
+  "results": [
+    {
+      "model": "google/gemini-2.0-flash-exp:free",
+      "status": 429,
+      "working": false,
+      "error": "Provider returned error",
+      "test": 1
+    },
+    {
+      "model": "google/gemini-flash-1.5:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for google/gemini-flash-1.5:free.",
+      "test": 1
+    },
+    {
+      "model": "google/gemini-flash-1.5-8b:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for google/gemini-flash-1.5-8b:free.",
+      "test": 1
+    },
+    {
+      "model": "meta-llama/llama-3.2-1b-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for meta-llama/llama-3.2-1b-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "meta-llama/llama-3.2-3b-instruct:free",
+      "status": 200,
+      "working": true,
+      "responseLength": 323,
+      "test": 1
+    },
+    {
+      "model": "meta-llama/llama-3.1-8b-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for meta-llama/llama-3.1-8b-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "qwen/qwen-2-7b-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for qwen/qwen-2-7b-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "qwen/qwen-2.5-7b-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for qwen/qwen-2.5-7b-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "mistralai/mistral-7b-instruct:free",
+      "status": 200,
+      "working": true,
+      "responseLength": 385,
+      "test": 1
+    },
+    {
+      "model": "mistralai/mistral-nemo:free",
+      "status": 429,
+      "working": false,
+      "error": "Provider returned error",
+      "test": 1
+    },
+    {
+      "model": "microsoft/phi-3-mini-128k-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for microsoft/phi-3-mini-128k-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "microsoft/phi-3-medium-128k-instruct:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for microsoft/phi-3-medium-128k-instruct:free.",
+      "test": 1
+    },
+    {
+      "model": "huggingfaceh4/zephyr-7b-beta:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for huggingfaceh4/zephyr-7b-beta:free.",
+      "test": 1
+    },
+    {
+      "model": "openchat/openchat-7b:free",
+      "status": 404,
+      "working": false,
+      "error": "No endpoints found for openchat/openchat-7b:free.",
+      "test": 1
+    },
+    {
+      "model": "nousresearch/hermes-3-llama-3.1-405b:free",
+      "status": 200,
+      "working": true,
+      "responseLength": 410,
+      "test": 1
+    }
+  ],
+  "working": [
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free"
+  ]
+}

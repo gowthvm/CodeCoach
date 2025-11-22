@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchWithKeyRotation } from '@/lib/api-key-manager'
+import { fetchWithModelFallback } from '@/lib/model-manager'
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,14 +42,10 @@ Learning Tip:
 Code to analyze:
 ${code}`
 
-    // First API call - Get commented code
-    const codeResponse = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1:free',
+    // First API call - Get commented code (with automatic model fallback)
+    const { response: codeResponse, modelUsed: codeModel } = await fetchWithModelFallback(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
         messages: [
           {
             role: 'system',
@@ -59,8 +56,10 @@ ${code}`
             content: commentedCodePrompt,
           },
         ],
-      }),
-    })
+      }
+    )
+
+    console.log(`[Analyze] Code commenting used model: ${codeModel}`)
 
     if (!codeResponse.ok) {
       const error = await codeResponse.text()
@@ -71,14 +70,10 @@ ${code}`
       )
     }
 
-    // Second API call - Get feedback
-    const feedbackResponse = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1:free',
+    // Second API call - Get feedback (with automatic model fallback)
+    const { response: feedbackResponse, modelUsed: feedbackModel } = await fetchWithModelFallback(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
         messages: [
           {
             role: 'system',
@@ -89,8 +84,10 @@ ${code}`
             content: feedbackPrompt,
           },
         ],
-      }),
-    })
+      }
+    )
+
+    console.log(`[Analyze] Feedback generation used model: ${feedbackModel}`)
 
     if (!feedbackResponse.ok) {
       const error = await feedbackResponse.text()
@@ -103,7 +100,7 @@ ${code}`
 
     const codeData = await codeResponse.json()
     const feedbackData = await feedbackResponse.json()
-    
+
     let analyzedCode = codeData.choices[0]?.message?.content || ''
     const feedback = feedbackData.choices[0]?.message?.content || ''
 
@@ -112,9 +109,18 @@ ${code}`
 
     return NextResponse.json({ analyzedCode, feedback })
   } catch (error) {
-    console.error('Error analyzing code:', error)
+    console.error('=== ERROR ANALYZING CODE ===')
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error)
+    console.error('Error message:', error instanceof Error ? error.message : String(error))
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('Full error object:', JSON.stringify(error, null, 2))
+    console.error('===========================')
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+      },
       { status: 500 }
     )
   }

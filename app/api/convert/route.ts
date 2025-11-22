@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { fetchWithKeyRotation } from '@/lib/api-key-manager'
+import { fetchWithModelFallback } from '@/lib/model-manager'
 
 // Helper function to validate code syntax and structure
 interface ValidationResult {
@@ -9,7 +10,7 @@ interface ValidationResult {
 
 const validateCode = async (code: string, language: string): Promise<ValidationResult> => {
   const issues: string[] = [];
-  
+
   // Basic validations
   if (!code.trim()) {
     issues.push('Code is empty');
@@ -64,13 +65,9 @@ const validateCode = async (code: string, language: string): Promise<ValidationR
 // Helper function to fix common code issues
 const fixCodeIssues = async (code: string, targetLanguage: string, sourceLanguage: string): Promise<string> => {
   try {
-    const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1:free',
+    const { response } = await fetchWithModelFallback(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
         temperature: 0.1, // Very low temperature for minimal changes
         max_tokens: 2000,
         messages: [
@@ -99,15 +96,15 @@ IMPORTANT RULES:
             Output only the fixed code with no additional text or explanations.`
           },
         ],
-      }),
-    });
+      }
+    );
 
     const data = await response.json();
     let fixedCode = data.choices[0]?.message?.content || code;
-    
+
     // Clean up the response
     fixedCode = fixedCode.replace(/^```[\w]*\n?/g, '').replace(/\n```$/g, '').trim();
-    
+
     return fixedCode;
   } catch (error: unknown) {
     console.error("Error fixing code:", error);
@@ -174,13 +171,9 @@ const cleanConvertedCode = (code: string, targetLanguage: string): string => {
 };
 
 async function generateCodeDescription(code: string, sourceLanguage: string): Promise<string> {
-  const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'deepseek/deepseek-chat-v3.1:free',
+  const { response } = await fetchWithModelFallback(
+    'https://openrouter.ai/api/v1/chat/completions',
+    {
       messages: [
         {
           role: 'system',
@@ -202,21 +195,17 @@ ${code}
 Provide only the description, no code.`
         }
       ]
-    })
-  });
+    }
+  );
 
   const data = await response.json();
   return data.choices[0]?.message?.content || '';
 }
 
 async function generateCodeFromDescription(description: string, targetLanguage: string, sourceLanguage: string): Promise<string> {
-  const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'deepseek/deepseek-chat-v3.1:free',
+  const { response } = await fetchWithModelFallback(
+    'https://openrouter.ai/api/v1/chat/completions',
+    {
       temperature: 0.1, // Very low temperature for consistency
       max_tokens: 3000,
       messages: [
@@ -247,15 +236,15 @@ OUTPUT:
 Only output the complete, runnable code with no additional text or explanations.`
         }
       ]
-    })
-  });
+    }
+  );
 
   const data = await response.json();
   let code = data.choices[0]?.message?.content || '';
-  
+
   // Clean and verify the generated code
   code = cleanAndVerifyCode(code, targetLanguage, sourceLanguage);
-  
+
   return code;
 }
 
@@ -287,7 +276,7 @@ function cleanAndVerifyCode(code: string, targetLanguage: string, sourceLanguage
 
 function verifyPythonCode(code: string): string {
   const imports = new Set<string>();
-  
+
   // Check for common Python patterns that need imports
   if (/(?:^|\n)\s*(?:import |from \w+ import )/m.test(code)) {
     // Code already has imports, analyze which ones are used
@@ -382,7 +371,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     // First, generate a detailed description of the source code
     const codeDescription = await generateCodeDescription(code, sourceLanguage);
-    
+
     // Then, generate the target code from the description
     const response = await fetchWithKeyRotation('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -449,8 +438,8 @@ Only output the final ${targetLanguage} code with no additional text or explanat
 
     const data = await response.json();
     let convertedCode = data.choices[0]?.message?.content || '';
-    
-        // Clean up and verify the converted code
+
+    // Clean up and verify the converted code
     convertedCode = cleanConvertedCode(convertedCode, targetLanguage);
     convertedCode = cleanAndVerifyCode(convertedCode, targetLanguage, sourceLanguage);
 
@@ -458,13 +447,13 @@ Only output the final ${targetLanguage} code with no additional text or explanat
     const validationResult = await validateCode(convertedCode, targetLanguage);
     if (!validationResult.isValid) {
       console.warn('Initial validation issues found:', validationResult.issues);
-      
+
       // Try to fix the code
       convertedCode = await fixCodeIssues(convertedCode, targetLanguage, sourceLanguage);
-      
+
       // Clean and verify again after fixing
       convertedCode = cleanAndVerifyCode(convertedCode, targetLanguage, sourceLanguage);
-      
+
       // Verify again after fixing
       const revalidation = await validateCode(convertedCode, targetLanguage);
       if (!revalidation.isValid) {

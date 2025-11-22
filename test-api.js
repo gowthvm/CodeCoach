@@ -1,87 +1,48 @@
-#!/usr/bin/env node
+// Test the deepseek/deepseek-r1:free model
+const OPENROUTER_API_KEY = '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';
 
-/**
- * API Endpoint Tester
- * Tests the /api/analyze endpoint to diagnose issues
- */
+async function testDeepSeekR1() {
+  console.log('Testing deepseek/deepseek-r1:free model...\n');
 
-const http = require('http');
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:3000',
+        'X-Title': 'CodeCoach'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-r1:free',
+        messages: [
+          {
+            role: 'user',
+            content: 'Say "Hello World" in Python'
+          }
+        ],
+        max_tokens: 100
+      })
+    });
 
-const testCode = `function hello() {
-  console.log("Hello, World!");
-}`;
+    console.log(`Response Status: ${response.status}\n`);
 
-const postData = JSON.stringify({
-  code: testCode,
-  complexity: 'beginner'
-});
-
-const options = {
-  hostname: 'localhost',
-  port: 3000,
-  path: '/api/analyze',
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(postData)
-  }
-};
-
-console.log('🧪 Testing CodeCoach API Endpoint...\n');
-console.log('Endpoint: http://localhost:3000/api/analyze');
-console.log('Method: POST');
-console.log('Payload:', postData);
-console.log('\n⏳ Sending request...\n');
-
-const req = http.request(options, (res) => {
-  console.log(`Status Code: ${res.statusCode}`);
-  console.log(`Status Message: ${res.statusMessage}`);
-  console.log('\nResponse Headers:');
-  console.log(JSON.stringify(res.headers, null, 2));
-  console.log('\nResponse Body:');
-
-  let data = '';
-
-  res.on('data', (chunk) => {
-    data += chunk;
-  });
-
-  res.on('end', () => {
-    try {
-      const parsed = JSON.parse(data);
-      console.log(JSON.stringify(parsed, null, 2));
-      
-      if (res.statusCode === 200) {
-        console.log('\n✅ API endpoint is working correctly!');
-        if (parsed.analyzedCode) {
-          console.log('\n📝 Analyzed Code Preview:');
-          console.log(parsed.analyzedCode.substring(0, 200) + '...');
-        }
-        if (parsed.feedback) {
-          console.log('\n💬 Feedback Preview:');
-          console.log(parsed.feedback.substring(0, 200) + '...');
-        }
-      } else {
-        console.log('\n❌ API returned an error');
-        if (parsed.details) {
-          console.log('Error details:', parsed.details);
-        }
-      }
-    } catch (e) {
-      console.log(data);
-      console.log('\n❌ Failed to parse response as JSON');
-      console.log('Parse error:', e.message);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✓ SUCCESS! Model is working!');
+      console.log('\nResponse:');
+      console.log(data.choices[0].message.content);
+      console.log('\n✓ You can now use the application - the API should work!');
+    } else {
+      const errorText = await response.text();
+      console.log('✗ Error Response:');
+      console.log(errorText);
+      console.log('\n✗ Model still unavailable on OpenRouter');
     }
-  });
-});
+  } catch (error) {
+    console.log('✗ Request failed:');
+    console.log(error.message);
+  }
+}
 
-req.on('error', (error) => {
-  console.error('❌ Request failed:', error.message);
-  console.log('\nPossible causes:');
-  console.log('- Development server is not running (run: npm run dev)');
-  console.log('- Server is running on a different port');
-  console.log('- Network/firewall issues');
-});
-
-req.write(postData);
-req.end();
+testDeepSeekR1();

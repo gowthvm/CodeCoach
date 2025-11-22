@@ -17,11 +17,11 @@ class ApiKeyManager {
     // Format: KEY1,KEY2,KEY3 or just a single key
     const apiKeyEnv = process.env.OPENROUTER_API_KEY || '';
     const keys = apiKeyEnv.split(',').map(key => key.trim()).filter(key => key.length > 0);
-    
+
     if (keys.length === 0) {
       console.warn('⚠️ Warning: No OPENROUTER_API_KEY environment variable found. API calls will fail.');
     }
-    
+
     this.config = {
       keys: keys.length > 0 ? keys : [],
       currentIndex: 0,
@@ -67,12 +67,12 @@ class ApiKeyManager {
     while (attempts < totalKeys) {
       this.config.currentIndex = (this.config.currentIndex + 1) % totalKeys;
       const nextKey = this.getCurrentKey();
-      
+
       if (!this.config.failedKeys.has(nextKey)) {
         console.log(`Rotated to API key: ${this.maskKey(nextKey)}`);
         return;
       }
-      
+
       attempts++;
     }
 
@@ -107,6 +107,7 @@ class ApiKeyManager {
    * Mask API key for logging (show only first and last 4 characters)
    */
   private maskKey(key: string): string {
+    if (!key) return 'undefined';
     if (key.length <= 8) return '****';
     return `${key.substring(0, 4)}...${key.substring(key.length - 4)}`;
   }
@@ -124,7 +125,7 @@ class ApiKeyManager {
       totalKeys: this.config.keys.length,
       availableKeys: this.getAvailableKeysCount(),
       failedKeys: this.config.failedKeys.size,
-      currentKey: this.maskKey(this.getCurrentKey()),
+      currentKey: this.maskKey(this.config.keys[this.config.currentIndex]),
     };
   }
 }
@@ -147,13 +148,13 @@ export async function fetchWithKeyRotation(
   options: RequestInit & { maxRetries?: number } = {}
 ): Promise<Response> {
   const manager = getApiKeyManager();
-  const maxRetries = options.maxRetries || manager.getAllKeys().length;
+  const maxRetries = options.maxRetries || Math.max(1, manager.getAllKeys().length);
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const apiKey = manager.getCurrentKey();
-      
+
       // Add authorization header with current API key
       const headers = {
         ...options.headers,
@@ -169,9 +170,9 @@ export async function fetchWithKeyRotation(
       if (response.status === 401 || response.status === 403) {
         console.warn(`API key authentication failed (${response.status}). Rotating to next key...`);
         manager.markCurrentKeyAsFailed();
-        
-        // If we still have available keys, continue to next iteration
-        if (manager.hasAvailableKeys()) {
+
+        // If we still have available keys AND we have retries left, continue
+        if (manager.hasAvailableKeys() && attempt < maxRetries - 1) {
           continue;
         } else {
           throw new Error('All API keys have failed authentication');
@@ -182,8 +183,9 @@ export async function fetchWithKeyRotation(
       if (response.status === 429) {
         console.warn('Rate limit hit. Rotating to next key...');
         manager.markCurrentKeyAsFailed();
-        
-        if (manager.hasAvailableKeys()) {
+
+        // If we still have available keys AND we have retries left, continue
+        if (manager.hasAvailableKeys() && attempt < maxRetries - 1) {
           continue;
         } else {
           throw new Error('All API keys have hit rate limits');
@@ -196,7 +198,7 @@ export async function fetchWithKeyRotation(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       console.error(`Attempt ${attempt + 1} failed:`, lastError.message);
-      
+
       // On network errors, try next key
       if (attempt < maxRetries - 1) {
         manager.markCurrentKeyAsFailed();
