@@ -43,7 +43,7 @@ export function SiteHeader({ user, loading }: SiteHeaderProps) {
 
   return (
     <header className="border-b bg-gradient-to-r from-white/80 to-white/60 dark:from-gray-900/80 dark:to-gray-900/60 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 shadow-sm hover:shadow-lg">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="w-full px-6 py-3 flex items-center justify-between">
         {/* Left: Logo + Nav */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2 group cursor-pointer">
@@ -57,35 +57,52 @@ export function SiteHeader({ user, loading }: SiteHeaderProps) {
 
           {/* Navigation Menu with Smooth Indicator */}
           <nav className="hidden md:flex items-center">
-            <div className="relative grid grid-cols-4 bg-muted/30 rounded-lg p-1 overflow-hidden">
-            {/* Sliding pill indicator using CSS left% */}
-            <div
-              className="absolute inset-y-1 rounded-md bg-primary/25 shadow-md shadow-primary/40 transition-all duration-300 ease-out"
-              style={{
-                width: "25%",
-                left: `${Math.max(activeIndex, 0) * 25}%`,
-              }}
-            />
+            <div className={`relative grid ${user ? 'grid-cols-5' : 'grid-cols-4'} bg-muted/30 rounded-lg p-1 overflow-hidden`}>
+              {/* Sliding pill indicator using CSS left% */}
+              <div
+                className="absolute inset-y-1 rounded-md bg-primary/25 shadow-md shadow-primary/40 transition-all duration-300 ease-out"
+                style={{
+                  width: `${100 / (user ? 5 : 4)}%`,
+                  left: `${Math.max(activeIndex, 0) * (100 / (user ? 5 : 4))}%`,
+                  opacity: activeIndex === -1 ? 0 : 1
+                }}
+              />
 
-            {navItems.map((item) => {
-              const isActive = activeNav === item.id
-              return (
+              {navItems.map((item) => {
+                const isActive = activeNav === item.id
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="relative text-center px-3 py-1.5 text-sm font-medium rounded-md"
+                  >
+                    <span
+                      className={`relative z-10 transition-colors duration-200 ${isActive
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                      {item.name}
+                    </span>
+                  </Link>
+                )
+              })}
+
+              {user && (
                 <Link
-                  key={item.id}
-                  href={item.href}
+                  href="/dashboard"
                   className="relative text-center px-3 py-1.5 text-sm font-medium rounded-md"
                 >
                   <span
-                    className={`relative z-10 transition-colors duration-200 ${
-                      isActive
+                    className={`relative z-10 transition-colors duration-200 ${pathname === "/dashboard"
                         ? "text-primary"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
-                    {item.name}
+                    History
                   </span>
                 </Link>
-              )})}
+              )}
             </div>
           </nav>
         </div>
