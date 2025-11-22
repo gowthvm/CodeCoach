@@ -72,13 +72,13 @@ export function SiteHeader() {
 
           {/* Navigation Menu with Smooth Indicator */}
           <nav className="hidden md:flex items-center">
-            <div className={`relative grid ${user ? 'grid-cols-5' : 'grid-cols-4'} bg-muted/30 rounded-lg p-1 overflow-hidden`}>
+            <div className="relative grid grid-cols-4 bg-muted/30 rounded-lg p-1 overflow-hidden">
               {/* Sliding pill indicator using CSS left% */}
               <div
                 className="absolute inset-y-1 rounded-md bg-primary/25 shadow-md shadow-primary/40 transition-all duration-300 ease-out"
                 style={{
-                  width: `${100 / (user ? 5 : 4)}%`,
-                  left: `${Math.max(activeIndex, 0) * (100 / (user ? 5 : 4))}%`,
+                  width: "25%",
+                  left: `${Math.max(activeIndex, 0) * 25}%`,
                   opacity: activeIndex === -1 ? 0 : 1
                 }}
               />
@@ -102,22 +102,6 @@ export function SiteHeader() {
                   </Link>
                 )
               })}
-
-              {user && (
-                <Link
-                  href="/dashboard"
-                  className="relative text-center px-3 py-1.5 text-sm font-medium rounded-md"
-                >
-                  <span
-                    className={`relative z-10 transition-colors duration-200 ${pathname === "/dashboard"
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                      }`}
-                  >
-                    History
-                  </span>
-                </Link>
-              )}
             </div>
           </nav>
         </div>
